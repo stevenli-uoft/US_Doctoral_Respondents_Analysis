@@ -1,4 +1,4 @@
-# US Doctoral Responents Analysis ACS 2022
+# US Doctoral Respondents Analysis ACS 2022
 
 ## File Structure
 The repository is structured as follows:
