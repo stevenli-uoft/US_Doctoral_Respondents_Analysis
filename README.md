@@ -2,9 +2,8 @@
 
 ## File Structure
 The repository is structured as follows:
-
-data: Due to the data being too large to upload, follow the instructions in the Appendix of the paper to download the data.
-paper: Contains the Quarto document, references, and the final PDF of the paper.
+- `data/`: Due to the data being too large to upload, follow the instructions in the Appendix of the paper to download the data.
+- `paper/`: Contains the Quarto document, references, and the final PDF of the paper.
 
 ## Sections
 1. Introduction
