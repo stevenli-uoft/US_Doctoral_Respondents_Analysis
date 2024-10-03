@@ -1,6 +1,7 @@
 # STA304 Reflection 4
 
-Instructions on how to obtain the data.
-A brief overview of the ratio estimators approach.
-Your estimates and the actual number of respondents.
-Some explanation of why you think they are different.
+## SECTIONS
+1. Instructions on How to Obtain the Data
+2. Brief Overview of the Ratio Estimators Approach
+3. Estimates and Actual Number of Respondents
+4. Explanation of Differences
