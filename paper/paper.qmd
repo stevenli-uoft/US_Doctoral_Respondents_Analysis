@@ -1,12 +1,19 @@
 ---
-title: "Reflection 4 Exercise"
+title: "U.S.A. Doctoral Respondents Estimation Analysis ACS 2022"
 author: 
-  - Group 52
-thanks: "Code and data are available at: https://github.com/stevenli-uoft/sta304_reflection4"
+  - Steven Li
+  - Tim Chen
+  - Xinxiang Gao
+  - John Zhang
+  - Tommy Fu
+  - Sandy Yu
+thanks: "Code and data are available at: https://github.com/stevenli-uoft/US_Doctoral_Responents_Analysis"
 date: today
 date-format: long
+abstract: "This paper provides an analysis of the total number of doctoral respondents in the 2022 American Census Survey (ACS) using data from IPUMS USA. The authors use a Laplace ratio estimation method, where the ratio of doctoral respondents to the total population in California is applied to other states to estimate their respondent counts. The study highlights a mean difference of 19.56% between the estimated and actual respondent counts, pointing to potential discrepancies. These discrepancies are attributed to variations in educational attainment across states, emphasizing the limitations of using a single ratio estimator."
 format: pdf
 number-sections: true
+bibliography: references.bib
 ---
 
 
@@ -22,16 +29,30 @@ library(knitr)
 data <- read_csv(here::here("data/usa_00001.csv"))
 ```
 
-# Instructions on how to obtain the data:
+# Introduction
+This paper outlines the number of doctoral respondent by state in 2022 American Census Survey and proceed to estimate the total number of respondents using California doctoral respondents number. The data used in this paper is collected from @ipums2022.
 
-1. Go to https://usa.ipums.org/usa/
-2. Create an account or log in
-3. Select the 2022 ACS sample
-4. Choose the following variables: STATEICP, EDUC, SEX
-5. Submit the extract request
-6. Download the data and save it as "usa_00001.csv" in a "data" folder in your project directory
+The remainder of this paper is structured as follows. @sec-data provides a sample look at the data. @sec-overview discusses the LaPlace estimation methods. @sec-results presents the LaPlace estimation results. @sec-explanation dives into the explanation and reasoning behind differences.
 
-# Brief Overview of the Ratio Estimators Approach
+The dataset was cleaned and processed using R [@RCoreTeam2023], with additional support from the tidyverse [@tidyverse] packages. The cleaning process involved removing any unnecessary variables, and calculating the LaPlace estimations.
+
+
+
+# Data {#sec-data}
+@tbl-sample is a sample of the downloaded data from IPUMS, and the columns needed for our analysis.
+```{r}
+#| label: tbl-sample
+#| tbl-cap: "Sample Data"
+#| echo: false
+#| warning: false
+#| message: false
+
+sample_data <- data %>% select("STATEICP", "EDUCD", "SEX") %>% sample_n(5)
+
+kable(sample_data)
+```
+
+# Brief Overview of the Ratio Estimators Approach {#sec-overview}
 The ratio estimators approach, also known as the Laplace ratio estimator, is a statistical method used to estimate population parameters when only partial information is available. In this case, we're using it to estimate the total number of respondents in each state based on the known number of respondents with doctoral degrees.
 
 The basic idea behind this approach is to use a known ratio from one population (in this case, California) and apply it to other populations to estimate their total size. The steps involved are:
@@ -61,13 +82,14 @@ ca_ratio <- doctoral_degrees_by_state %>%
   mutate(ratio = doctoral_count / total_count) %>%
   pull(ratio)
 
-# Apply Laplace ratio estimator
+# Apply Laplace ratio estimator with rounding
 laplace_estimate <- doctoral_degrees_by_state %>%
   mutate(
-    estimated_total = doctoral_count / ca_ratio,
-    difference = total_count - estimated_total,
+    estimated_total = round(doctoral_count / ca_ratio), 
+    difference = round(total_count - estimated_total),
     percent_difference = (difference / total_count) * 100
   )
+
 
 
 # Summary statistics
@@ -80,23 +102,8 @@ summary_stats <- laplace_estimate %>%
   )
 ```
 
-# Estimates and Actual Number of Respondents
-@tbl-laplace_estimates presents the total doctoral count, total respondents, and estimated respondent count for every state.
-```{r}
-#| label: tbl-laplace_estimates
-#| tbl-cap: "State Doctoral and Respondant Counts, and Estimates"
-#| echo: false
-#| warning: false
-#| message: false
-
-colnames(laplace_estimate) <- c("STATEICP", "Actual Doctoral Count", 
-                                "Total Respondent", "Estimated Respondent Count",
-                                "Difference", "% Difference")
-
-kable(laplace_estimate)
-```
-
-@tbl-summary_stats shows the summary statistics of @tbl-laplace_estimates, highlighting a mean difference of 19.56%.
+# Estimates and Actual Number of Respondents {#sec-results}
+@tbl-laplace_estimates in the appendix presents the total doctoral count, total respondents, and estimated respondent count for every state. @tbl-summary_stats shows the summary statistics of @tbl-laplace_estimates, showing a mean difference of 19.56% between estimated and actual respondents.
 
 ```{r}
 #| label: tbl-summary_stats
@@ -112,7 +119,7 @@ colnames(summary_stats) <- c("Mean Difference", "Median Difference",
 kable(summary_stats)
 ```
 
-# Explanation of Differences
+# Explanation of Differences {#sec-explanation}
 Our estimates using the Laplace ratio estimator show some notable differences from the actual numbers of respondents in each state. Here are the key points to consider:
 
 - Magnitude of differences: On average, our estimates differed from the actual numbers by about 12,785 respondents (mean difference), with a median difference of 10,122. This suggests that while some states had larger discrepancies, the typical difference was around 10,000 respondents.
@@ -120,3 +127,42 @@ Our estimates using the Laplace ratio estimator show some notable differences fr
 
 
 These findings highlight the limitations of applying a single ratio estimator across diverse populations and emphasize the need for more nuanced approaches when estimating population parameters across different regions.
+
+\newpage
+
+# Appendix
+## Instructions on how to obtain the data:
+
+1. Go to https://usa.ipums.org/usa/
+2. Create an account or log in
+3. Select the 2022 ACS sample
+4. Choose the following variables: STATEICP, EDUC, SEX
+5. Submit the extract request
+6. Download the data and save it as "usa_00001.csv" in a "data" folder in your project directory
+gunzip usa_00004.csv.gz
+7. If you have problems opening the zip file:
+
+  > 1. Open your terminal
+  > 2. Navigate to the folder containing the zip file
+  > 3. Paste gunzip usa_00004.csv.gz into the terminal, and click enter
+  
+8. Move the usa_00004.csv to the folder "data/"
+
+## Sample Data
+```{r}
+#| label: tbl-laplace_estimates
+#| tbl-cap: "State Doctoral and Respondant Counts, and Estimates"
+#| echo: false
+#| warning: false
+#| message: false
+
+colnames(laplace_estimate) <- c("STATEICP", "Actual Doctoral Count", 
+                                "Total Respondent", "Estimated Respondent Count",
+                                "Difference", "% Difference")
+
+kable(laplace_estimate)
+```
+
+\newpage
+
+# References {-}
